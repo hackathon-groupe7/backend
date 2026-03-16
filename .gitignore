@@ -32,5 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
-resources/
 .mvn/
+.m2/
+.env
