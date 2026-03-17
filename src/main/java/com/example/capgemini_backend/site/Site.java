@@ -13,6 +13,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -41,6 +43,10 @@ public class Site {
 
     @Column(nullable = false, precision = 14, scale = 2)
     private BigDecimal annualEnergyMwh;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 40)
+    private HeatingType heatingType;
 
     @Column(nullable = false)
     private Integer employeeCount;
@@ -112,6 +118,14 @@ public class Site {
 
     public Integer getEmployeeCount() {
         return employeeCount;
+    }
+
+    public HeatingType getHeatingType() {
+        return heatingType;
+    }
+
+    public void setHeatingType(HeatingType heatingType) {
+        this.heatingType = heatingType;
     }
 
     public void setEmployeeCount(Integer employeeCount) {

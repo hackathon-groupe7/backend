@@ -1,5 +1,6 @@
 package com.example.capgemini_backend.site.dto;
 
+import com.example.capgemini_backend.site.HeatingType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -16,6 +17,7 @@ public record SiteCreateRequest(
     @NotNull @DecimalMin(value = "1.0", inclusive = true) BigDecimal surfaceM2,
     @NotNull @Min(0) Integer parkingSpots,
     @NotNull @DecimalMin(value = "0.0", inclusive = false) BigDecimal annualEnergyMwh,
+    @NotNull HeatingType heatingType,
     @NotNull @Min(1) Integer employeeCount,
     @NotNull @Min(0) Integer workstationCount,
     @NotEmpty List<@Valid MaterialUsageRequest> materials

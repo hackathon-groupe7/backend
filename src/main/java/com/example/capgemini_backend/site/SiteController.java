@@ -5,6 +5,7 @@ import com.example.capgemini_backend.site.dto.SiteComparisonResponse;
 import com.example.capgemini_backend.site.dto.SiteCreateRequest;
 import com.example.capgemini_backend.site.dto.SiteResponse;
 import jakarta.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,5 +49,10 @@ public class SiteController {
     @GetMapping("/compare")
     SiteComparisonResponse compare(@RequestParam List<UUID> ids) {
         return siteService.compare(ids);
+    }
+
+    @GetMapping("/heating-types")
+    List<HeatingType> heatingTypes() {
+        return Arrays.asList(HeatingType.values());
     }
 }

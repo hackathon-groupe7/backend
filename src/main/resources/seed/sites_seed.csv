@@ -1,0 +1,5 @@
+name,city,surfaceM2,parkingSpots,annualEnergyMwh,heatingType,employeeCount,workstationCount,concreteTonnes,steelTonnes,glassTonnes,woodTonnes
+Rennes Campus,Rennes,11771,300,1840,ELECTRIC,1800,1037,4000,900,300,120
+Paris HQ,Paris,8600,120,1320,DISTRICT_HEATING,1100,780,2850,760,410,180
+Lyon Delivery Center,Lyon,5300,190,980,HEAT_PUMP,620,460,1980,510,170,95
+Bordeaux Engineering Site,Bordeaux,4200,140,740,GAS,480,340,1520,390,150,80
