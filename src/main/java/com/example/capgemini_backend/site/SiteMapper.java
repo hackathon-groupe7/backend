@@ -20,6 +20,7 @@ public class SiteMapper {
             site.getSurfaceM2(),
             site.getParkingSpots(),
             site.getAnnualEnergyMwh(),
+            site.getHeatingType(),
             site.getEmployeeCount(),
             site.getWorkstationCount(),
             latest == null ? null : toSnapshotResponse(latest),

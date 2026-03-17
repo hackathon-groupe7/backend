@@ -14,11 +14,15 @@ Spring Boot backend for carbon-footprint management of physical sites (construct
   - list/get own sites
   - historized emissions (`/history`)
   - compare multiple sites (`/compare?ids=...`)
+  - list supported heating types (`/heating-types`)
 - Carbon KPIs:
   - total CO2e
   - CO2e per m2
   - CO2e per employee
   - construction vs operation split
+- Impact CO2 integration:
+  - fetches official ADEME-based heating emissions from `https://impactco2.fr/api/v1/chauffage`
+  - derives operation factor in `kgCO2e/MWh` with local fallback if API is unavailable
 
 ## Run locally
 
@@ -84,6 +88,7 @@ Use returned token as `Authorization: Bearer <token>`.
   "surfaceM2": 11771,
   "parkingSpots": 300,
   "annualEnergyMwh": 1840,
+  "heatingType": "ELECTRIC",
   "employeeCount": 1800,
   "workstationCount": 1037,
   "materials": [
@@ -97,8 +102,12 @@ Use returned token as `Authorization: Bearer <token>`.
 
 ## Notes
 
-- Emission factors are seeded with default values and can be externalized later (ADEME/OpenData integration ready via service boundary).
+- Material emission factors are persisted in database and used during calculation.
+- Operation emission factor is fetched from Impact CO2 API (`/chauffage`) and cached in-memory.
+- `heatingType` is required when creating a site and maps to official Impact CO2 heating slugs.
+- If Impact CO2 cannot be reached, calculation falls back to local default operation factor.
 - Each site creation stores an emission snapshot for historization.
+- Optional site seeding is available: fixed rows from `src/main/resources/seed/sites_seed.csv` + reproducible random demo sites.
 
 
 # ENVIROMENT
@@ -107,6 +116,16 @@ Use returned token as `Authorization: Bearer <token>`.
 - DB_URL
 - JWT_ISSUER
 - JWT_EXPIRATION_MINUTES=120
+- IMPACT_CO2_BASE_URL=https://impactco2.fr/api/v1
+- IMPACT_CO2_API_KEY=
+- IMPACT_CO2_REFERENCE_SURFACE_M2=100
+- IMPACT_CO2_REFERENCE_ANNUAL_CONSUMPTION_MWH=10.0
+- SEED_SITES_ENABLED=false
+- SEED_SITES_FORCE_RELOAD=false
+- SEED_SITES_USER_EMAIL=demo@capgemini.com
+- SEED_SITES_USER_PASSWORD=DemoPass123!
+- SEED_SITES_CSV_PATH=seed/sites_seed.csv
+- SEED_SITES_RANDOM_COUNT=8
 
 # PROPERTIES
 ```
@@ -128,5 +147,15 @@ app.jwt.issuer=
 app.jwt.expiration-minutes=
 app.jwt.signing-key-base64=
 app.jwt.encryption-key-base64=
+app.impact-co2.base-url=
+app.impact-co2.api-key=
+app.impact-co2.reference-surface-m2=
+app.impact-co2.reference-annual-consumption-mwh=
+app.seed.sites.enabled=
+app.seed.sites.force-reload=
+app.seed.sites.seed-user-email=
+app.seed.sites.seed-user-password=
+app.seed.sites.csv-path=
+app.seed.sites.random-count=
 logging.level.org.apache.coyote.http11.Http11Processor=
 ```

@@ -9,15 +9,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class CarbonCalculatorService {
 
-    // Approximate factors, intended as replaceable defaults (kgCO2e per tonne).
-    private static final Map<MaterialType, BigDecimal> MATERIAL_FACTORS = new EnumMap<>(MaterialType.class);
-    private static final BigDecimal ENERGY_FACTOR_KG_PER_MWH = new BigDecimal("56.0");
+    // Fallback factors used when DB or API data is unavailable.
+    private static final Map<MaterialType, BigDecimal> DEFAULT_MATERIAL_FACTORS = new EnumMap<>(MaterialType.class);
+    private final EmissionFactorRepository emissionFactorRepository;
+    private final ImpactCo2Service impactCo2Service;
 
     static {
-        MATERIAL_FACTORS.put(MaterialType.CONCRETE, new BigDecimal("120.0"));
-        MATERIAL_FACTORS.put(MaterialType.STEEL, new BigDecimal("1900.0"));
-        MATERIAL_FACTORS.put(MaterialType.GLASS, new BigDecimal("1000.0"));
-        MATERIAL_FACTORS.put(MaterialType.WOOD, new BigDecimal("110.0"));
+        DEFAULT_MATERIAL_FACTORS.put(MaterialType.CONCRETE, new BigDecimal("120.0"));
+        DEFAULT_MATERIAL_FACTORS.put(MaterialType.STEEL, new BigDecimal("1900.0"));
+        DEFAULT_MATERIAL_FACTORS.put(MaterialType.GLASS, new BigDecimal("1000.0"));
+        DEFAULT_MATERIAL_FACTORS.put(MaterialType.WOOD, new BigDecimal("110.0"));
+    }
+
+    public CarbonCalculatorService(
+        EmissionFactorRepository emissionFactorRepository,
+        ImpactCo2Service impactCo2Service
+    ) {
+        this.emissionFactorRepository = emissionFactorRepository;
+        this.impactCo2Service = impactCo2Service;
     }
 
     public EmissionSnapshot calculate(Site site) {
@@ -27,7 +36,7 @@ public class CarbonCalculatorService {
             .setScale(3, RoundingMode.HALF_UP);
 
         BigDecimal operation = site.getAnnualEnergyMwh()
-            .multiply(ENERGY_FACTOR_KG_PER_MWH)
+            .multiply(impactCo2Service.getOperationFactorKgPerMwh(site.getHeatingType()))
             .setScale(3, RoundingMode.HALF_UP);
 
         BigDecimal total = construction.add(operation).setScale(3, RoundingMode.HALF_UP);
@@ -45,7 +54,9 @@ public class CarbonCalculatorService {
     }
 
     private BigDecimal getFactor(MaterialType materialType) {
-        return MATERIAL_FACTORS.getOrDefault(materialType, BigDecimal.ZERO);
+        return emissionFactorRepository.findByMaterialType(materialType)
+            .map(EmissionFactor::getKgCo2ePerTonne)
+            .orElseGet(() -> DEFAULT_MATERIAL_FACTORS.getOrDefault(materialType, BigDecimal.ZERO));
     }
 
     private BigDecimal safeDivide(BigDecimal numerator, BigDecimal denominator) {

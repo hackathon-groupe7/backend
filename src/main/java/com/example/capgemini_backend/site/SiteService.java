@@ -46,6 +46,7 @@ public class SiteService {
         site.setSurfaceM2(request.surfaceM2());
         site.setParkingSpots(request.parkingSpots());
         site.setAnnualEnergyMwh(request.annualEnergyMwh());
+        site.setHeatingType(request.heatingType());
         site.setEmployeeCount(request.employeeCount());
         site.setWorkstationCount(request.workstationCount());
         site.setOwner(currentUser);
